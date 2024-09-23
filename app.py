@@ -7,6 +7,7 @@ import streamlit as st
 from crewai import Agent, Task, Crew
 from utils import get_openai_api_key
 from crewai_tools import ScrapeWebsiteTool
+import os
 
 openai_api_key = get_openai_api_key()
 os.environ["OPENAI_MODEL_NAME"] = 'gpt-3.5-turbo'
