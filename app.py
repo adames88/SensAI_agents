@@ -8,6 +8,9 @@ from crewai import Agent, Task, Crew
 from utils import get_openai_api_key
 from crewai_tools import ScrapeWebsiteTool
 
+openai_api_key = get_openai_api_key()
+os.environ["OPENAI_MODEL_NAME"] = 'gpt-3.5-turbo'
+
 # Title and description
 st.title("SensAI Support Agent")
 st.write("This app simulates an AI support agent interacting with customer inquiries.")
