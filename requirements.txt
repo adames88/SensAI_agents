@@ -4,3 +4,4 @@ langchain_community==0.0.29
 streamlit
 chroma
 pysqlite3-binary
+pillow
