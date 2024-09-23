@@ -1,3 +1,8 @@
+
+import sys
+import pysqlite3
+# Force Python to use pysqlite3 instead of the older sqlite3
+sys.modules['sqlite3'] = pysqlite3
 import streamlit as st
 from crewai import Agent, Task, Crew
 from utils import get_openai_api_key
