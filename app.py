@@ -19,7 +19,7 @@ os.environ["OPENAI_MODEL_NAME"] = 'gpt-3.5-turbo'
 
 # Title and AI robot introduction
 st.title("🤖 Meet SensAI's Support Agent!")
-st.write("This app simulates an AI support agent interacting with customer inquiries.")
+st.write("SensAI Agent")
 st.image(robot_image, caption="Hello! I’m your AI assistant, ready to help!", use_column_width=True)
 
 # Allow users to personalize their AI experience
@@ -29,7 +29,7 @@ greeting_style = st.radio(
     ("Friendly", "Professional", "Funny", "Helpful")
 )
 
-# Define personalized greetings
+# Define personalized greetings and agent tones
 greetings = {
     "Friendly": "Hey there, friend! How can I make your day awesome?",
     "Professional": "Good day. How may I assist you with your query?",
@@ -37,6 +37,24 @@ greetings = {
     "Helpful": "Here to help! Please tell me what you'd like to know."
 }
 
+# Define tones for agents based on greeting style
+agent_tones = {
+    "Friendly": (
+        "You're the friendliest support agent around! Make sure to add warmth and kindness to all your responses, "
+        "and make the customer feel valued."
+    ),
+    "Professional": (
+        "You are a highly professional support agent. Your goal is to maintain a polite and formal tone while being thorough and efficient."
+    ),
+    "Funny": (
+        "As a fun-loving agent, you're all about keeping the conversation lighthearted. Add some humor to your responses while still solving the problem."
+    ),
+    "Helpful": (
+        "You're the helpful agent who is always ready to assist. Be extra detailed, making sure the customer feels fully supported every step of the way."
+    )
+}
+
+# Display the selected greeting
 st.markdown(f"### {greetings[greeting_style]}")
 
 # User inputs for customer, person, and inquiry details
@@ -50,29 +68,27 @@ if not customer or not person or not inquiry:
     st.warning("Please fill out all the fields before submitting.")
 else:
     if st.button('Submit Inquiry'):
-        # Define the support agent
+        # Define the support agent with tone-based behavior
         support_agent = Agent(
             role="Senior Support Representative",
-            goal="Be the most friendly and helpful support representative in your team",
+            goal=f"Be the most {greeting_style.lower()} and helpful support representative in your team.",
             backstory=(
-                "You work at SensAI (https://sensai-consulting.com) and are now working on providing support to {customer}, a super important customer for your company."
-                "You need to make sure that you provide the best support! Make sure to provide full complete answers, and make no assumptions."
-                "You must have a call to action for SensAI who is your employer"
-                "You are assiting customers on an app that means you must write in like you would when messaging not email"
-                "Do not write a letter or email like, but more as a social media dm"
+                f"You work at SensAI (https://sensai-consulting.com) and are now working on providing support to {customer}, "
+                "a super important customer for your company. You need to make sure that you provide the best support! "
+                f"{agent_tones[greeting_style]}"
             ),
             allow_delegation=False,
             verbose=True
         )
 
-        # Define quality assurance agent
+        # Define quality assurance agent with tone-based behavior
         support_quality_assurance_agent = Agent(
             role="Support Quality Assurance Specialist",
-            goal="Get recognition for providing the best support quality assurance in your team",
+            goal=f"Get recognition for providing the best support quality assurance in a {greeting_style.lower()} way.",
             backstory=(
-                "You work at SensAI (https://sensai-consulting.com) and are now working with your team on a request from {customer} ensuring that the support representative "
-                "is providing the best support possible.\n"
-                "You need to make sure that the support representative is providing full, complete answers, and making no assumptions."
+                f"You work at SensAI (https://sensai-consulting.com) and are now working with your team on a request from {customer} "
+                "ensuring that the support representative is providing the best support possible. "
+                f"{agent_tones[greeting_style]}"
             ),
             verbose=True
         )
@@ -80,36 +96,33 @@ else:
         # Tool for scraping website data
         docs_scrape_tool = ScrapeWebsiteTool(website_url="https://sensai-consulting.com")
 
-        # Define task for inquiry resolution
+        # Define task for inquiry resolution with agent tone
         inquiry_resolution = Task(
             description=(
-                "{customer} just reached out with a super important ask:\n"
-                "{inquiry}\n\n"
-                "{person} from {customer} is the one that reached out. "
-                "Make sure to use everything you know to provide the best support possible."
+                f"{customer} just reached out with a super important ask:\n{inquiry}\n\n"
+                f"{person} from {customer} is the one that reached out. "
+                "Make sure to use everything you know to provide the best support possible. "
                 "You must strive to provide a complete and accurate response to the customer's inquiry."
             ),
             expected_output=(
-                "A detailed, informative response to the customer's inquiry that addresses all aspects of their question.\n"
-                "The response should include references to everything you used to find the answer, "
-                "including external data or solutions. Ensure the answer is complete, "
-                "leaving no questions unanswered, and maintain a helpful and friendly tone throughout."
+                f"A detailed, informative response to the customer's inquiry that addresses all aspects of their question.\n"
+                f"The response should be {greeting_style.lower()} and include references to everything you used to find the answer, "
+                "including external data or solutions. Ensure the answer is complete, leaving no questions unanswered."
             ),
             tools=[docs_scrape_tool],
             agent=support_agent,
         )
 
-        # Define QA task (optional)
+        # Define QA task with agent tone (optional)
         quality_assurance_review = Task(
             description=(
                 "Review the response drafted by the Senior Support Representative for {customer}'s inquiry. "
-                "Ensure that the answer is comprehensive, accurate, and adheres to the high-quality standards expected for customer support.\n"
-                "Verify that all parts of the customer's inquiry have been addressed thoroughly, with a helpful and friendly tone.\n"
-                "Check for references and sources used to find the information, ensuring the response is well-supported and leaves no questions unanswered."
+                f"Ensure that the answer is comprehensive, accurate, and maintains a {greeting_style.lower()} tone. "
+                "Verify that all parts of the customer's inquiry have been addressed thoroughly, with a helpful and friendly tone."
             ),
             expected_output=(
-                "A final, detailed, and informative response ready to be sent to the customer. This response should fully address the customer's inquiry, "
-                "incorporating all relevant feedback and improvements. Don't be too formal, we are a chill and cool company but maintain a professional and friendly tone throughout."
+                f"A final, detailed, and informative response ready to be sent to the customer. This response should fully address the customer's inquiry, "
+                f"incorporating all relevant feedback and improvements, while maintaining a {greeting_style.lower()} tone throughout."
             ),
             agent=support_quality_assurance_agent,
         )
@@ -130,7 +143,7 @@ else:
         }
 
         # Display progress bar during AI processing
-        st.markdown("🤖 **AI Support:** Processing your inquiry...")
+        st.markdown(f"🤖 **AI Support:** Processing your inquiry with a {greeting_style.lower()} tone...")
         progress_bar = st.progress(0)
         for i in range(100):
             progress_bar.progress(i + 1)
@@ -138,7 +151,8 @@ else:
         # Run the task and get the result
         result = crew.kickoff(inputs=inputs)
 
-        # Display result as Markdown
+        # Display result with the corresponding tone
+        st.markdown(f"### Here’s your {greeting_style.lower()} support response:")
         st.markdown(result)
 
 # Fun fact section for more user interaction
